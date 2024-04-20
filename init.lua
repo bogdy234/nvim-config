@@ -11,6 +11,8 @@ vim.g.have_nerd_font = false
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
+-- make cursor fat on insert mode
+vim.opt.guicursor = ''
 
 -- Make line numbers default
 vim.opt.number = true
@@ -71,24 +73,23 @@ vim.opt.scrolloff = 10
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
--- Set highlight on search, but clear on pressing <Esc> in normal mode
-vim.opt.hlsearch = true
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-
--- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-
--- Buffer keymaps
-vim.keymap.set('n', '<leader>bd', ':bd<CR>', { desc = 'Delete current buffer' })
+-- vim.keymap.set('n', '<leader>p', '<cmd>silent !tmux neww tmux-sessionizer<CR>')
 
 -- Other keymaps
-vim.keymap.set('n', '<leader>oe', ':Ex<CR>', { desc = 'Goto file explorer' })
+-- vim.keymap.set('n', '<leader>oe', ':Ex<CR>', { desc = 'Goto file explorer' })
 
 -- Git keymaps
 vim.keymap.set('n', '<leader>gg', ':G<CR>', { desc = 'Open fugitive' })
+
+-- Theme keymap
+vim.keymap.set('n', '<leader>kt', ':Telescope colorscheme<CR>', { desc = 'Open theme picker' })
+
+-- Undo tree keymap
+vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = 'Undo tree toggle' })
+
+-- Quickfix keymaps
+vim.keymap.set('n', '<leader>qn', ':cnext<CR>', { desc = 'Quickfix next' })
+vim.keymap.set('n', '<leader>qp', ':cprev<CR>', { desc = 'Quickfix prev' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -150,6 +151,7 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  'tpope/vim-fugitive',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -162,7 +164,6 @@ require('lazy').setup({
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
-  { 'tpope/vim-fugitive' },
 
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
@@ -213,6 +214,7 @@ require('lazy').setup({
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
         ['<leader>o'] = { name = '[O]thers', _ = 'which_key_ignore' },
         ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
+        ['<leader>q'] = { name = '[Q]uickfix list', _ = 'which_key_ignore' },
       }
     end,
   },
@@ -309,7 +311,7 @@ require('lazy').setup({
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
           winblend = 10,
-          previewer = false,
+          previewer = true,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
@@ -552,12 +554,29 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        ['javascript'] = { 'prettier' },
+        ['javascriptreact'] = { 'prettier' },
+        ['typescript'] = { 'prettier' },
+        ['typescriptreact'] = { 'prettier' },
+        ['vue'] = { 'prettier' },
+        ['css'] = { 'prettier' },
+        ['scss'] = { 'prettier' },
+        ['less'] = { 'prettier' },
+        ['html'] = { 'prettier' },
+        ['json'] = { 'prettier' },
+        ['jsonc'] = { 'prettier' },
+        ['yaml'] = { 'prettier' },
+        ['markdown'] = { 'prettier' },
+        ['markdown.mdx'] = { 'prettier' },
+        ['graphql'] = { 'prettier' },
+        ['handlebars'] = { 'prettier' },
+        ['go'] = { 'prettier' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        -- javascript = { 'prettierd', 'prettier' },
       },
     },
   },
@@ -629,7 +648,7 @@ require('lazy').setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<CR>'] = cmp.mapping.confirm { select = true },
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -667,21 +686,49 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+  -- TODO: check if can improve theme so it remains the selected one from picker
+  --  { -- You can easily change to a different colorscheme.
+  --    -- Change the name of the colorscheme plugin below, and then
+  --    -- change the command in the config to whatever the name of that colorscheme is.
+  --    --
+  --    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --    'folke/tokyonight.nvim',
+  --    priority = 1000, -- Make sure to load this before all the other start plugins.
+  --    init = function()
+  --      -- Load the colorscheme here.
+  --      -- Like many other themes, this one has different styles, and you could load
+  --      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --      vim.cmd.colorscheme 'tokyonight-night'
+  --
+  --      -- You can configure highlights by doing something like:
+  --      vim.cmd.hi 'Comment gui=none'
+  --    end,
+  --  },
 
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+  -- { -- You can easily change to a different colorscheme.
+  --   -- Change the name of the colorscheme plugin below, and then
+  --   -- change the command in the config to whatever the name of that colorscheme is.
+  --   --
+  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --   'oxfist/night-owl.nvim',
+  --   priority = 1000, -- Make sure to load this before all the other start plugins.
+  --   init = function()
+  --     -- Load the colorscheme here.
+  --     -- Like many other themes, this one has different styles, and you could load
+  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --     vim.cmd.colorscheme 'night-owl'
+
+  --     -- You can configure highlights by doing something like:
+  --     vim.cmd.hi 'Comment gui=none'
+  --   end,
+  -- },
+
+  {
+    'rose-pine/neovim',
+    as = 'rose-pine',
+    priority = 1000,
+    init = function()
+      vim.cmd.colorscheme 'rose-pine'
     end,
   },
 
@@ -740,6 +787,9 @@ require('lazy').setup({
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
+      autotag = {
+        enable = true,
+      },
     },
     config = function(_, opts)
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
