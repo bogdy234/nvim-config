@@ -78,8 +78,24 @@ vim.opt.scrolloff = 10
 -- Other keymaps
 -- vim.keymap.set('n', '<leader>oe', ':Ex<CR>', { desc = 'Goto file explorer' })
 
+-- [[ Basic Keymaps ]]
+--  See `:help vim.keymap.set()`
+
+-- Set highlight on search, but clear on pressing <Esc> in normal mode
+vim.opt.hlsearch = true
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+
+-- Diagnostic keymaps
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
+vim.keymap.set('n', '<leader>oe', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
 -- Git keymaps
 vim.keymap.set('n', '<leader>gg', ':G<CR>', { desc = 'Open fugitive' })
+
+-- Buffer keymaps
+vim.keymap.set('n', '<leader>bd', ':bd<CR>', { desc = 'Delete current buffer' })
 
 -- Theme keymap
 vim.keymap.set('n', '<leader>kt', ':Telescope colorscheme<CR>', { desc = 'Open theme picker' })
@@ -215,6 +231,7 @@ require('lazy').setup({
         ['<leader>o'] = { name = '[O]thers', _ = 'which_key_ignore' },
         ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
         ['<leader>q'] = { name = '[Q]uickfix list', _ = 'which_key_ignore' },
+        ['<leader>e'] = { name = '[E]xplorer', _ = 'which_key_ignore' },
       }
     end,
   },
