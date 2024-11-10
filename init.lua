@@ -16,6 +16,7 @@ vim.opt.guicursor = ''
 
 -- Make line numbers default
 vim.opt.number = true
+
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
 vim.opt.relativenumber = true
@@ -80,6 +81,12 @@ vim.opt.scrolloff = 10
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
+--
+--  remap p To P and P to p
+vim.keymap.set('n', 'p', 'P')
+vim.keymap.set('n', 'P', 'p')
+vim.keymap.set('v', 'p', 'P')
+vim.keymap.set('v', 'P', 'p')
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
@@ -299,6 +306,9 @@ require('lazy').setup({
         --   },
         -- },
         -- pickers = {}
+        defaults = {
+          path_display = { 'smart' },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -739,7 +749,13 @@ require('lazy').setup({
   --     vim.cmd.hi 'Comment gui=none'
   --   end,
   -- },
-
+  -- {
+  --   'ellisonleao/gruvbox.nvim',
+  --   priority = 1000,
+  --   init = function()
+  --     vim.cmd.colorscheme 'gruvbox'
+  --   end,
+  -- },
   {
     'rose-pine/neovim',
     as = 'rose-pine',
@@ -807,6 +823,13 @@ require('lazy').setup({
       autotag = {
         enable = true,
       },
+      -- incremental_selection = {
+      --   enable = true,
+      --   keymaps = {
+      --     node_incremental = 'v',
+      --     node_decremental = 'V',
+      --   },
+      -- },
     },
     config = function(_, opts)
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
